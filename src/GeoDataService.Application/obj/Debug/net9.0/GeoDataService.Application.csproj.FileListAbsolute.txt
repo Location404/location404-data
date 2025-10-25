@@ -1,0 +1,15 @@
+/home/ryanbromati/repos/tcc/geo-data-service/src/GeoDataService.Application/bin/Debug/net9.0/GeoDataService.Application.deps.json
+/home/ryanbromati/repos/tcc/geo-data-service/src/GeoDataService.Application/bin/Debug/net9.0/GeoDataService.Application.dll
+/home/ryanbromati/repos/tcc/geo-data-service/src/GeoDataService.Application/bin/Debug/net9.0/GeoDataService.Application.pdb
+/home/ryanbromati/repos/tcc/geo-data-service/src/GeoDataService.Application/bin/Debug/net9.0/GeoDataService.Domain.dll
+/home/ryanbromati/repos/tcc/geo-data-service/src/GeoDataService.Application/bin/Debug/net9.0/GeoDataService.Domain.pdb
+/home/ryanbromati/repos/tcc/geo-data-service/src/GeoDataService.Application/obj/Debug/net9.0/GeoDataService.Application.csproj.AssemblyReference.cache
+/home/ryanbromati/repos/tcc/geo-data-service/src/GeoDataService.Application/obj/Debug/net9.0/GeoDataService.Application.GeneratedMSBuildEditorConfig.editorconfig
+/home/ryanbromati/repos/tcc/geo-data-service/src/GeoDataService.Application/obj/Debug/net9.0/GeoDataService.Application.AssemblyInfoInputs.cache
+/home/ryanbromati/repos/tcc/geo-data-service/src/GeoDataService.Application/obj/Debug/net9.0/GeoDataService.Application.AssemblyInfo.cs
+/home/ryanbromati/repos/tcc/geo-data-service/src/GeoDataService.Application/obj/Debug/net9.0/GeoDataService.Application.csproj.CoreCompileInputs.cache
+/home/ryanbromati/repos/tcc/geo-data-service/src/GeoDataService.Application/obj/Debug/net9.0/GeoDataS.000C766D.Up2Date
+/home/ryanbromati/repos/tcc/geo-data-service/src/GeoDataService.Application/obj/Debug/net9.0/GeoDataService.Application.dll
+/home/ryanbromati/repos/tcc/geo-data-service/src/GeoDataService.Application/obj/Debug/net9.0/refint/GeoDataService.Application.dll
+/home/ryanbromati/repos/tcc/geo-data-service/src/GeoDataService.Application/obj/Debug/net9.0/GeoDataService.Application.pdb
+/home/ryanbromati/repos/tcc/geo-data-service/src/GeoDataService.Application/obj/Debug/net9.0/ref/GeoDataService.Application.dll
