@@ -4,19 +4,16 @@ using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure host options to prevent background service failures from stopping the app
 builder.Services.Configure<HostOptions>(options =>
 {
     options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
 });
 
-// Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddGeoDataInfrastructure(builder.Configuration);
 builder.Services.AddScoped<DataSeeder>();
 
-// Configure CORS
 var originsString = builder.Configuration.GetValue<string>("Cors:AllowedOrigins") ?? "";
 var allowedOrigins = originsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
@@ -33,7 +30,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Seed database
+// seed when starting the app
 using (var scope = app.Services.CreateScope())
 {
     try
@@ -48,7 +45,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -59,7 +55,6 @@ app.UseCors();
 
 app.MapControllers();
 
-// Health check endpoint
 app.MapGet("/health", () => Results.Ok(new
 {
     status = "healthy",

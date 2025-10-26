@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GeoDataService.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+af9bae95da83a16a8aa9fa422a7759ef37b97b2b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4924d358d03e1555efedb5528fe3149701ac4cf5")]
 [assembly: System.Reflection.AssemblyProductAttribute("GeoDataService.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GeoDataService.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
