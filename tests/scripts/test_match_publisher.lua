@@ -1,25 +1,14 @@
-#!/usr/bin/env lua
---[[
-Script Lua para publicar eventos match.ended de teste no RabbitMQ
-Requer: lua-cjson, luasocket, lua-amqp (ou usar HTTP API)
-
-Como usar:
-  lua test_match_publisher.lua
-]]
-
 local http = require("socket.http")
 local ltn12 = require("ltn12")
 local json = require("cjson")
 
--- Configuração RabbitMQ
-local RABBITMQ_HOST = "location404-rabbitmq-8b2418-181-215-135-221.traefik.me"
+local RABBITMQ_HOST = ""
 local RABBITMQ_PORT = "15672"  -- Porta HTTP API
 local RABBITMQ_USER = "admin"
-local RABBITMQ_PASSWORD = "rqtisgqs"
+local RABBITMQ_PASSWORD = ""
 local EXCHANGE_NAME = "game-events"
 local ROUTING_KEY = "match.ended"
 
--- IDs dos jogadores (substitua com IDs reais se necessário)
 local PLAYER_A_ID = "e19cfe2c-4f56-4914-841b-0aac8b46be24"
 local PLAYER_B_ID = "0e3cc492-ec0f-4fc3-a2de-dfa2f84b6fa3"
 
