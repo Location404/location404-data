@@ -30,7 +30,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// seed when starting the app
 using (var scope = app.Services.CreateScope())
 {
     try

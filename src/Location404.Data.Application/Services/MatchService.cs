@@ -17,7 +17,6 @@ public class MatchService(IUnitOfWork unitOfWork, ILogger<MatchService> logger) 
     {
         try
         {
-            // Check if match already exists
             var existingMatch = await _unitOfWork.Matches.GetByIdAsync(eventDto.MatchId, cancellationToken);
             if (existingMatch != null)
             {
@@ -25,14 +24,12 @@ public class MatchService(IUnitOfWork unitOfWork, ILogger<MatchService> logger) 
                 return;
             }
 
-            // Create match
             var match = new GameMatch(
                 eventDto.MatchId,
                 eventDto.PlayerAId,
                 eventDto.PlayerBId
             );
 
-            // Add rounds
             foreach (var roundDto in eventDto.Rounds)
             {
                 if (roundDto.GameResponse == null || roundDto.PlayerAGuess == null || roundDto.PlayerBGuess == null)
@@ -57,7 +54,6 @@ public class MatchService(IUnitOfWork unitOfWork, ILogger<MatchService> logger) 
 
             await _unitOfWork.Matches.AddAsync(match, cancellationToken);
 
-            // Update player stats
             await UpdatePlayerStatsAsync(eventDto.PlayerAId, match, match.Rounds, cancellationToken);
             await UpdatePlayerStatsAsync(eventDto.PlayerBId, match, match.Rounds, cancellationToken);
 

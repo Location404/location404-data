@@ -101,7 +101,6 @@ public class MatchConsumerService : BackgroundService
             _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
 
-            // Declare exchange (idempotent)
             _channel.ExchangeDeclare(
                 exchange: _settings.ExchangeName,
                 type: ExchangeType.Topic,
@@ -109,7 +108,6 @@ public class MatchConsumerService : BackgroundService
                 autoDelete: false
             );
 
-            // Declare queue
             _channel.QueueDeclare(
                 queue: _settings.MatchEndedQueue,
                 durable: true,
@@ -117,7 +115,6 @@ public class MatchConsumerService : BackgroundService
                 autoDelete: false
             );
 
-            // Bind queue to exchange
             _channel.QueueBind(
                 queue: _settings.MatchEndedQueue,
                 exchange: _settings.ExchangeName,
