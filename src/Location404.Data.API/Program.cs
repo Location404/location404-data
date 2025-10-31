@@ -1,6 +1,7 @@
 using Location404.Data.Infrastructure;
 using Location404.Data.Infrastructure.Data;
 using Microsoft.Extensions.Hosting;
+using Shared.Observability.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,10 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddGeoDataInfrastructure(builder.Configuration);
 builder.Services.AddScoped<DataSeeder>();
+builder.Services.AddOpenTelemetryObservability(builder.Configuration, options =>
+{
+    options.Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+});
 
 var originsString = builder.Configuration.GetValue<string>("Cors:AllowedOrigins") ?? "";
 var allowedOrigins = originsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
