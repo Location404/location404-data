@@ -12,7 +12,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Location404.Shared.Observability" Version="0.0.4"/>
+    <PackageReference Include="Location404.Shared.Observability" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>

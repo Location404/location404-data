@@ -58,14 +58,6 @@ app.UseHttpsRedirection();
 app.UseCors();
 
 app.MapControllers();
-
-app.MapGet("/health", () => Results.Ok(new
-{
-    status = "healthy",
-    service = "geo-data-service",
-    timestamp = DateTime.UtcNow
-}))
-.WithName("HealthCheck")
-.WithTags("Health");
+app.MapObservabilityHealthChecks();
 
 app.Run();
