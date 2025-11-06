@@ -1,5 +1,7 @@
 using Location404.Data.Infrastructure;
+using Location404.Data.Infrastructure.Context;
 using Location404.Data.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Shared.Observability.Core;
 
@@ -39,13 +41,20 @@ using (var scope = app.Services.CreateScope())
 {
     try
     {
+        // Aplicar migrations automaticamente
+        var context = scope.ServiceProvider.GetRequiredService<GeoDataDbContext>();
+        Console.WriteLine("🔄 Applying database migrations...");
+        await context.Database.MigrateAsync();
+        Console.WriteLine("✅ Database migrations applied successfully");
+
+        // Seed inicial
         var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
         await seeder.SeedAsync();
         Console.WriteLine("✅ Database seeded successfully");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"⚠️  Database seeding failed (service will still start): {ex.Message}");
+        Console.WriteLine($"⚠️  Database initialization failed (service will still start): {ex.Message}");
     }
 }
 

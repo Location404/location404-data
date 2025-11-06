@@ -18,7 +18,7 @@ public class MatchConsumerService : BackgroundService
     private readonly ILogger<MatchConsumerService> _logger;
     private readonly IServiceProvider _serviceProvider;
     private IConnection? _connection;
-    private IModel? _channel;
+    private IChannel? _channel;
     private readonly JsonSerializerOptions _jsonOptions;
 
     public MatchConsumerService(
@@ -99,7 +99,7 @@ public class MatchConsumerService : BackgroundService
             factory.Ssl.Enabled = false;
 
             _connection = factory.CreateConnection();
-            _channel = _connection.CreateModel();
+            _channel = _connection.CreateChannel();
 
             _channel.ExchangeDeclare(
                 exchange: _settings.ExchangeName,
