@@ -51,11 +51,11 @@ public class MatchConsumerService : BackgroundService
         {
             try
             {
-                EnsureConnection();
+                await EnsureConnectionAsync(stoppingToken);
 
                 if (_channel != null)
                 {
-                    StartConsuming();
+                    await StartConsumingAsync(stoppingToken);
                     await Task.Delay(Timeout.Infinite, stoppingToken);
                 }
             }
@@ -72,7 +72,7 @@ public class MatchConsumerService : BackgroundService
         }
     }
 
-    private void EnsureConnection()
+    private async Task EnsureConnectionAsync(CancellationToken cancellationToken)
     {
         if (_connection?.IsOpen == true && _channel?.IsOpen == true)
             return;
@@ -89,36 +89,35 @@ public class MatchConsumerService : BackgroundService
                 Password = _settings.Password,
                 VirtualHost = _settings.VirtualHost,
                 AutomaticRecoveryEnabled = true,
-                NetworkRecoveryInterval = TimeSpan.FromSeconds(10),
-                RequestedConnectionTimeout = TimeSpan.FromSeconds(5),
-                SocketReadTimeout = TimeSpan.FromSeconds(5),
-                SocketWriteTimeout = TimeSpan.FromSeconds(5)
+                NetworkRecoveryInterval = TimeSpan.FromSeconds(10)
             };
 
-            // Disable SSL for non-SSL RabbitMQ server
             factory.Ssl.Enabled = false;
 
-            _connection = factory.CreateConnection();
-            _channel = _connection.CreateChannel();
+            _connection = await factory.CreateConnectionAsync(cancellationToken);
+            _channel = await _connection.CreateChannelAsync(cancellationToken: cancellationToken);
 
-            _channel.ExchangeDeclare(
+            await _channel.ExchangeDeclareAsync(
                 exchange: _settings.ExchangeName,
                 type: ExchangeType.Topic,
                 durable: true,
-                autoDelete: false
+                autoDelete: false,
+                cancellationToken: cancellationToken
             );
 
-            _channel.QueueDeclare(
+            await _channel.QueueDeclareAsync(
                 queue: _settings.MatchEndedQueue,
                 durable: true,
                 exclusive: false,
-                autoDelete: false
+                autoDelete: false,
+                cancellationToken: cancellationToken
             );
 
-            _channel.QueueBind(
+            await _channel.QueueBindAsync(
                 queue: _settings.MatchEndedQueue,
                 exchange: _settings.ExchangeName,
-                routingKey: "match.ended"
+                routingKey: "match.ended",
+                cancellationToken: cancellationToken
             );
 
             _logger.LogInformation("Successfully connected to RabbitMQ and declared queue {Queue}", _settings.MatchEndedQueue);
@@ -130,28 +129,28 @@ public class MatchConsumerService : BackgroundService
         }
     }
 
-    private void StartConsuming()
+    private async Task StartConsumingAsync(CancellationToken cancellationToken)
     {
         if (_channel == null)
             return;
 
-        var consumer = new EventingBasicConsumer(_channel);
+        var consumer = new AsyncEventingBasicConsumer(_channel);
 
-        consumer.Received += async (model, ea) =>
+        consumer.ReceivedAsync += async (model, ea) =>
         {
+            // v7: MUST copy body data immediately (memory is library-owned)
+            var body = ea.Body.ToArray();
             IServiceScope? scope = null;
+
             try
             {
-                var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
-
                 _logger.LogInformation("Received message from RabbitMQ: {RoutingKey}", ea.RoutingKey);
 
                 var eventDto = JsonSerializer.Deserialize<GameMatchEndedEventDto>(message, _jsonOptions);
 
                 if (eventDto != null)
                 {
-                    // Create scope - check if provider is not disposed
                     try
                     {
                         scope = _serviceProvider.CreateScope();
@@ -159,27 +158,26 @@ public class MatchConsumerService : BackgroundService
                     catch (ObjectDisposedException)
                     {
                         _logger.LogWarning("ServiceProvider disposed, cannot process message. Rejecting without requeue.");
-                        _channel?.BasicNack(ea.DeliveryTag, false, false);
+                        await _channel.BasicNackAsync(ea.DeliveryTag, false, false);
                         return;
                     }
 
                     var matchService = scope.ServiceProvider.GetRequiredService<IMatchService>();
-
                     await matchService.ProcessMatchEndedEventAsync(eventDto);
 
-                    _channel?.BasicAck(ea.DeliveryTag, false);
+                    await _channel.BasicAckAsync(ea.DeliveryTag, false);
                     _logger.LogInformation("Successfully processed match {MatchId}", eventDto.MatchId);
                 }
                 else
                 {
                     _logger.LogWarning("Failed to deserialize message, sending NACK without requeue");
-                    _channel?.BasicNack(ea.DeliveryTag, false, false);
+                    await _channel.BasicNackAsync(ea.DeliveryTag, false, false);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing message, sending NACK without requeue");
-                _channel?.BasicNack(ea.DeliveryTag, false, false); // Don't requeue to avoid infinite loop
+                await _channel.BasicNackAsync(ea.DeliveryTag, false, false);
             }
             finally
             {
@@ -187,31 +185,39 @@ public class MatchConsumerService : BackgroundService
             }
         };
 
-        _channel.BasicConsume(
+        await _channel.BasicConsumeAsync(
             queue: _settings.MatchEndedQueue,
             autoAck: false,
-            consumer: consumer
+            consumer: consumer,
+            cancellationToken: cancellationToken
         );
 
         _logger.LogInformation("Started consuming from queue {Queue}", _settings.MatchEndedQueue);
     }
 
+    public override async Task StopAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Stopping RabbitMQ consumer");
+
+        if (_channel != null)
+        {
+            await _channel.CloseAsync(cancellationToken);
+            _channel.Dispose();
+        }
+
+        if (_connection != null)
+        {
+            await _connection.CloseAsync(cancellationToken);
+            _connection.Dispose();
+        }
+
+        await base.StopAsync(cancellationToken);
+    }
+
     public override void Dispose()
     {
-        _logger.LogInformation("Disposing RabbitMQ consumer");
-
-        try
-        {
-            _channel?.Close();
-            _channel?.Dispose();
-            _connection?.Close();
-            _connection?.Dispose();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error disposing RabbitMQ connection");
-        }
-
+        _channel?.Dispose();
+        _connection?.Dispose();
         base.Dispose();
         GC.SuppressFinalize(this);
     }
