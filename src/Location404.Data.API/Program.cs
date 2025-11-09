@@ -26,7 +26,7 @@ builder.Services.AddObservabilityHealthChecks(builder.Configuration, checks =>
     var postgresConnection = builder.Configuration.GetConnectionString("GeoDataDatabase");
     if (!string.IsNullOrEmpty(postgresConnection))
     {
-        checks.AddNpgSql(postgresConnection, name: "postgres", tags: new[] { "ready", "db" });
+        checks.AddNpgSql(postgresConnection, name: "postgres", tags: new[] { "ready", "db" }, timeout: TimeSpan.FromSeconds(3));
     }
 });
 
