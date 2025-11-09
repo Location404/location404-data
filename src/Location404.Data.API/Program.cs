@@ -21,6 +21,15 @@ builder.Services.AddOpenTelemetryObservability(builder.Configuration, options =>
     options.Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
 });
 
+builder.Services.AddObservabilityHealthChecks(builder.Configuration, checks =>
+{
+    var postgresConnection = builder.Configuration.GetConnectionString("GeoDataDatabase");
+    if (!string.IsNullOrEmpty(postgresConnection))
+    {
+        checks.AddNpgSql(postgresConnection, name: "postgres", tags: new[] { "ready", "db" });
+    }
+});
+
 var originsString = builder.Configuration.GetValue<string>("Cors:AllowedOrigins") ?? "";
 var allowedOrigins = originsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
