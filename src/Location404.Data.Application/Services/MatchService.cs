@@ -8,9 +8,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Location404.Data.Application.Services;
 
-public class MatchService(IUnitOfWork unitOfWork, ILogger<MatchService> logger) : IMatchService
+public class MatchService(
+    IUnitOfWork unitOfWork,
+    ICacheService cacheService,
+    ILogger<MatchService> logger) : IMatchService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly ICacheService _cacheService = cacheService;
     private readonly ILogger<MatchService> _logger = logger;
 
     public async Task ProcessMatchEndedEventAsync(GameMatchEndedEventDto eventDto, CancellationToken cancellationToken = default)
@@ -58,9 +62,21 @@ public class MatchService(IUnitOfWork unitOfWork, ILogger<MatchService> logger) 
             await UpdatePlayerStatsAsync(eventDto.PlayerBId, match, match.Rounds, cancellationToken);
 
             // SaveChangesAsync is atomic - it will commit all changes or rollback all changes automatically
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("Match {MatchId} processed successfully", eventDto.MatchId);
 
-            _logger.LogInformation("Match {MatchId} processed successfully", eventDto.MatchId);
+                // Invalidate cache after successful commit (write-through invalidation)
+                await InvalidateCacheAsync(eventDto.PlayerAId, eventDto.PlayerBId, cancellationToken);
+            }
+            catch (Exception ex) when (IsDuplicateKeyException(ex))
+            {
+                // PostgreSQL unique violation (duplicate key) - this is expected in race conditions
+                // Another consumer already processed this message, we can safely ignore
+                _logger.LogWarning(ex, "Match {MatchId} already exists (duplicate key constraint), skipping due to race condition", eventDto.MatchId);
+                return;
+            }
         }
         catch (Exception ex)
         {
@@ -134,5 +150,42 @@ public class MatchService(IUnitOfWork unitOfWork, ILogger<MatchService> logger) 
             round.EndedAt,
             round.IsCompleted
         );
+    }
+
+    /// <summary>
+    /// Checks if an exception is a duplicate key constraint violation (PostgreSQL error 23505).
+    /// This avoids direct dependency on EF Core in the Application layer.
+    /// </summary>
+    private static bool IsDuplicateKeyException(Exception ex)
+    {
+        // Check exception message for PostgreSQL duplicate key indicators
+        var message = ex.ToString();
+        return message.Contains("23505") ||
+               message.Contains("duplicate key", StringComparison.OrdinalIgnoreCase) ||
+               message.Contains("unique constraint", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Invalidates cache for player stats and ranking after a match is processed.
+    /// Uses fire-and-forget pattern - cache invalidation failures should not break match processing.
+    /// </summary>
+    private async Task InvalidateCacheAsync(Guid playerAId, Guid playerBId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            // Invalidate player stats cache for both players
+            await _cacheService.RemoveAsync($"player:stats:{playerAId}", cancellationToken);
+            await _cacheService.RemoveAsync($"player:stats:{playerBId}", cancellationToken);
+
+            // Invalidate all ranking caches (since ranking points changed)
+            await _cacheService.RemoveByPatternAsync("ranking:top:*", cancellationToken);
+
+            _logger.LogDebug("Cache invalidated for players {PlayerA} and {PlayerB}", playerAId, playerBId);
+        }
+        catch (Exception ex)
+        {
+            // Log but don't throw - cache invalidation failures should not break match processing
+            _logger.LogWarning(ex, "Failed to invalidate cache after match processing");
+        }
     }
 }

@@ -5,8 +5,10 @@ using Location404.Data.Infrastructure.Context;
 using Location404.Data.Infrastructure.Configuration;
 using Location404.Data.Infrastructure.Repositories;
 using Location404.Data.Infrastructure.Messaging;
+using Location404.Data.Infrastructure.Cache;
 using Location404.Data.Application.Common.Interfaces;
 using Location404.Data.Application.Services;
+using StackExchange.Redis;
 
 namespace Location404.Data.Infrastructure;
 
@@ -17,6 +19,7 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         AddDatabase(services, configuration);
+        AddCache(services, configuration);
         AddRepositories(services);
         AddServices(services);
         AddRabbitMQ(services, configuration);
@@ -48,6 +51,32 @@ public static class DependencyInjection
             options.EnableSensitiveDataLogging();
             options.EnableDetailedErrors();
         });
+    }
+
+    private static void AddCache(IServiceCollection services, IConfiguration configuration)
+    {
+        var cacheConnectionString = configuration.GetConnectionString("Cache");
+
+        if (!string.IsNullOrEmpty(cacheConnectionString))
+        {
+            // Register Redis ConnectionMultiplexer as singleton
+            services.AddSingleton<IConnectionMultiplexer>(sp =>
+            {
+                var options = ConfigurationOptions.Parse(cacheConnectionString);
+                options.AbortOnConnectFail = false; // Retry connection automatically
+                options.ConnectTimeout = 5000; // 5 seconds
+                options.SyncTimeout = 3000; // 3 seconds for operations
+                return ConnectionMultiplexer.Connect(options);
+            });
+
+            // Register cache service
+            services.AddSingleton<ICacheService, RedisCacheService>();
+        }
+        else
+        {
+            // Null object pattern - no-op cache service if Redis is not configured
+            services.AddSingleton<ICacheService, NullCacheService>();
+        }
     }
 
     private static void AddRepositories(IServiceCollection services)
