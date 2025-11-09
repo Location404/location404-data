@@ -1,10 +1,12 @@
 using Location404.Data.Application.Common.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Location404.Data.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class PlayersController(IPlayerStatsService playerStatsService) : ControllerBase
 {
     private readonly IPlayerStatsService _playerStatsService = playerStatsService;

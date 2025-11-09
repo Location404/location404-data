@@ -1,11 +1,13 @@
 using Location404.Data.Application.Common.Interfaces;
 using Location404.Data.Application.DTOs.Requests;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Location404.Data.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class LocationsController(ILocationService locationService) : ControllerBase
 {
     private readonly ILocationService _locationService = locationService;
@@ -29,6 +31,7 @@ public class LocationsController(ILocationService locationService) : ControllerB
     }
 
     [HttpGet("random")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetRandom()
     {
         var location = await _locationService.GetRandomLocationAsync();

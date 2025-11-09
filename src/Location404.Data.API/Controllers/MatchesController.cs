@@ -1,16 +1,19 @@
 using Location404.Data.Application.Common.Interfaces;
 using Location404.Data.Application.DTOs.Events;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Location404.Data.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class MatchesController(IMatchService matchService) : ControllerBase
 {
     private readonly IMatchService _matchService = matchService;
 
     [HttpPost("ended")]
+    [AllowAnonymous]
     public async Task<IActionResult> ProcessMatchEnded([FromBody] GameMatchEndedEventDto eventDto)
     {
         try
