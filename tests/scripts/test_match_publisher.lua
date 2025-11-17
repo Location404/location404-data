@@ -3,7 +3,7 @@ local ltn12 = require("ltn12")
 local json = require("cjson")
 
 local RABBITMQ_HOST = ""
-local RABBITMQ_PORT = "15672"  -- Porta HTTP API
+local RABBITMQ_PORT = "15672" 
 local RABBITMQ_USER = "admin"
 local RABBITMQ_PASSWORD = ""
 local EXCHANGE_NAME = "game-events"
@@ -12,7 +12,6 @@ local ROUTING_KEY = "match.ended"
 local PLAYER_A_ID = "e19cfe2c-4f56-4914-841b-0aac8b46be24"
 local PLAYER_B_ID = "0e3cc492-ec0f-4fc3-a2de-dfa2f84b6fa3"
 
--- Função para gerar UUID simples
 local function generate_uuid()
     local template = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
     return string.gsub(template, '[xy]', function (c)
@@ -21,12 +20,10 @@ local function generate_uuid()
     end)
 end
 
--- Função para obter timestamp ISO 8601
 local function get_iso_timestamp()
     return os.date("!%Y-%m-%dT%H:%M:%S.000Z")
 end
 
--- Função para criar evento de teste
 local function create_test_match_event()
     local match_id = generate_uuid()
     local timestamp = get_iso_timestamp()
@@ -91,7 +88,6 @@ local function create_test_match_event()
     return event
 end
 
--- Função para publicar evento usando HTTP API do RabbitMQ
 local function publish_match_event(event)
     local url = string.format(
         "http://%s:%s@%s:%s/api/exchanges/%%2F/%s/publish",
@@ -149,7 +145,6 @@ local function publish_match_event(event)
     end
 end
 
--- Main
 math.randomseed(os.time())
 
 print("Criando evento de teste...")
@@ -161,3 +156,4 @@ local success = publish_match_event(event)
 if not success then
     os.exit(1)
 end
+
