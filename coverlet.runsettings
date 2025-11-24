@@ -6,7 +6,7 @@
         <Configuration>
           <Format>opencover,cobertura</Format>
           <Exclude>[*.Tests]*,[*Tests]*</Exclude>
-          <ExcludeByFile>**/Migrations/**,**/Program.cs</ExcludeByFile>
+          <ExcludeByFile>**/Migrations/**,**/Program.cs,**/DependencyInjection.cs,**/UnitOfWork.cs,**/DataSeeder.cs</ExcludeByFile>
         </Configuration>
       </DataCollector>
     </DataCollectors>
