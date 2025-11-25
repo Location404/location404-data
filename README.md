@@ -78,39 +78,39 @@ O projeto segue **Clean Architecture** com separação clara de responsabilidade
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                      API Layer (REST)                        │
-│  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐   │
-│  │  Locations   │  │   Matches    │  │    Players      │   │
-│  │  Controller  │  │  Controller  │  │   Controller    │   │
-│  └──────────────┘  └──────────────┘  └─────────────────┘   │
+│                      API Layer (REST)                       │
+│  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐    │
+│  │  Locations   │  │   Matches    │  │    Players      │    │
+│  │  Controller  │  │  Controller  │  │   Controller    │    │
+│  └──────────────┘  └──────────────┘  └─────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
                             │
 ┌─────────────────────────────────────────────────────────────┐
-│                    Application Layer                         │
-│  ┌──────────────────┐  ┌──────────────────────────────┐    │
-│  │    Services      │  │         Interfaces           │    │
-│  │ - LocationService│  │  - ILocationService          │    │
-│  │ - MatchService   │  │  - IMatchService             │    │
-│  │ - PlayerStats    │  │  - IPlayerStatsService       │    │
-│  └──────────────────┘  └──────────────────────────────┘    │
+│                    Application Layer                        │
+│  ┌──────────────────┐  ┌──────────────────────────────┐     │
+│  │    Services      │  │         Interfaces           │     │
+│  │ - LocationService│  │  - ILocationService          │     │
+│  │ - MatchService   │  │  - IMatchService             │     │
+│  │ - PlayerStats    │  │  - IPlayerStatsService       │     │
+│  └──────────────────┘  └──────────────────────────────┘     │
 └─────────────────────────────────────────────────────────────┘
                             │
 ┌─────────────────────────────────────────────────────────────┐
-│                      Domain Layer                            │
-│  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐   │
-│  │  Entities    │  │ Value Objects│  │  Domain Logic   │   │
-│  │  - Location  │  │  - Coordinate│  │  - ELO Calc     │   │
-│  │  - GameMatch │  │              │  │  - Stats Logic  │   │
-│  │  - PlayerStat│  │              │  │                 │   │
-│  └──────────────┘  └──────────────┘  └─────────────────┘   │
+│                      Domain Layer                           │
+│  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐    │
+│  │  Entities    │  │ Value Objects│  │  Domain Logic   │    │
+│  │  - Location  │  │  - Coordinate│  │  - ELO Calc     │    │
+│  │  - GameMatch │  │              │  │  - Stats Logic  │    │
+│  │  - PlayerStat│  │              │  │                 │    │
+│  └──────────────┘  └──────────────┘  └─────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
                             │
 ┌─────────────────────────────────────────────────────────────┐
-│                  Infrastructure Layer                        │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────┐ │
-│  │PostgreSQL│  │ RabbitMQ │  │  Redis   │  │DataSeeder  │ │
-│  │ (EF Core)│  │(Consumer)│  │ (Cache)  │  │(96 Loc's)  │ │
-│  └──────────┘  └──────────┘  └──────────┘  └────────────┘ │
+│                  Infrastructure Layer                       │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────┐   │
+│  │PostgreSQL│  │ RabbitMQ │  │  Redis   │  │DataSeeder  │   │
+│  │ (EF Core)│  │(Consumer)│  │ (Cache)  │  │(96 Loc's)  │   │
+│  └──────────┘  └──────────┘  └──────────┘  └────────────┘   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -805,3 +805,4 @@ Este projeto está sob a licença **MIT**. Veja o arquivo [LICENSE](LICENSE) par
 <p align="center">
   Desenvolvido por <a href="https://github.com/ryanbromati">ryanbromati</a>
 </p>
+
