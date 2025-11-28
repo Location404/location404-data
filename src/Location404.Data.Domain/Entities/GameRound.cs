@@ -7,7 +7,6 @@ namespace Location404.Data.Domain.Entities;
 /// </summary>
 public class GameRound
 {
-    // EF Core constructor
     private GameRound() { }
 
     public GameRound(
@@ -79,7 +78,6 @@ public class GameRound
             throw new ArgumentException("Player is not part of this round");
         }
 
-        // Check if both players have guessed
         if (PlayerAGuess != null && PlayerBGuess != null)
         {
             CompleteRound();

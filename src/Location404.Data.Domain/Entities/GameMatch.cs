@@ -5,7 +5,6 @@ namespace Location404.Data.Domain.Entities;
 /// </summary>
 public class GameMatch
 {
-    // EF Core constructor
     private GameMatch() { }
 
     public GameMatch(Guid id, Guid playerAId, Guid playerBId)
@@ -50,7 +49,6 @@ public class GameMatch
         PlayerATotalPoints += round.PlayerAPoints ?? 0;
         PlayerBTotalPoints += round.PlayerBPoints ?? 0;
 
-        // Check if match should end (3 rounds completed)
         if (Rounds.Count(r => r.IsCompleted) >= 3)
         {
             EndMatch();
@@ -62,7 +60,6 @@ public class GameMatch
         IsCompleted = true;
         EndedAt = DateTime.UtcNow;
 
-        // Determine winner
         if (PlayerATotalPoints > PlayerBTotalPoints)
         {
             WinnerId = PlayerAId;
@@ -73,7 +70,6 @@ public class GameMatch
             WinnerId = PlayerBId;
             LoserId = PlayerAId;
         }
-        // If tie, both remain null
     }
 
     public GameRound? GetCurrentRound()

@@ -41,7 +41,7 @@ public class RedisCacheService : ICacheService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting value from cache for key: {Key}", key);
-            return null; // Fail gracefully - don't break the application if cache is down
+            return null;
         }
     }
 
@@ -57,7 +57,6 @@ public class RedisCacheService : ICacheService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error setting value in cache for key: {Key}", key);
-            // Fail gracefully - don't break the application if cache is down
         }
     }
 
@@ -72,7 +71,6 @@ public class RedisCacheService : ICacheService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error removing value from cache for key: {Key}", key);
-            // Fail gracefully
         }
     }
 
@@ -90,7 +88,6 @@ public class RedisCacheService : ICacheService
             var server = _redis.GetServer(endpoints[0]);
             var db = _redis.GetDatabase();
 
-            // Use SCAN instead of KEYS for production safety (non-blocking)
             await foreach (var key in server.KeysAsync(pattern: pattern))
             {
                 await db.KeyDeleteAsync(key);
@@ -101,7 +98,6 @@ public class RedisCacheService : ICacheService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error removing values from cache by pattern: {Pattern}", pattern);
-            // Fail gracefully
         }
     }
 }

@@ -30,15 +30,12 @@ public class PlayerStatsService(
             return cachedStats;
         }
 
-        // Cache miss: Fetch from database
         var stats = await _unitOfWork.PlayerStats.GetByPlayerIdAsync(playerId, cancellationToken);
 
         if (stats == null)
             return null;
 
         var response = MapToResponse(stats);
-
-        // Store in cache
         await _cacheService.SetAsync(cacheKey, response, PlayerStatsCacheDuration, cancellationToken);
 
         return response;
@@ -46,7 +43,6 @@ public class PlayerStatsService(
 
     public async Task<List<PlayerStatsResponse>> GetRankingAsync(int count = 10, CancellationToken cancellationToken = default)
     {
-        // Cache-aside pattern: Try cache first
         var cacheKey = $"{RankingCacheKeyPrefix}:{count}";
         var cachedRanking = await _cacheService.GetAsync<List<PlayerStatsResponse>>(cacheKey, cancellationToken);
 
@@ -56,13 +52,10 @@ public class PlayerStatsService(
             return cachedRanking;
         }
 
-        // Cache miss: Fetch from database
         var topPlayers = await _unitOfWork.PlayerStats.GetTopByRankingAsync(count, cancellationToken);
         var response = topPlayers.Select(MapToResponse).ToList();
 
-        // Store in cache (short TTL for frequently changing data)
         await _cacheService.SetAsync(cacheKey, response, RankingCacheDuration, cancellationToken);
-
         return response;
     }
 

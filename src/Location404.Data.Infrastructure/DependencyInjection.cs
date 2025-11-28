@@ -32,12 +32,10 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("GeoDataDatabase")
             ?? throw new InvalidOperationException("Connection string 'GeoDataDatabase' not found.");
 
-        // Configure Npgsql data source with dynamic JSON support
         var dataSourceBuilder = new Npgsql.NpgsqlDataSourceBuilder(connectionString);
         dataSourceBuilder.EnableDynamicJson();
         var dataSource = dataSourceBuilder.Build();
 
-        // Register data source as singleton
         services.AddSingleton(dataSource);
 
         services.AddDbContext<GeoDataDbContext>((serviceProvider, options) =>
@@ -59,22 +57,19 @@ public static class DependencyInjection
 
         if (!string.IsNullOrEmpty(cacheConnectionString))
         {
-            // Register Redis ConnectionMultiplexer as singleton
             services.AddSingleton<IConnectionMultiplexer>(sp =>
             {
                 var options = ConfigurationOptions.Parse(cacheConnectionString);
-                options.AbortOnConnectFail = false; // Retry connection automatically
-                options.ConnectTimeout = 5000; // 5 seconds
-                options.SyncTimeout = 3000; // 3 seconds for operations
+                options.AbortOnConnectFail = false;
+                options.ConnectTimeout = 5000;
+                options.SyncTimeout = 3000;
                 return ConnectionMultiplexer.Connect(options);
             });
 
-            // Register cache service
             services.AddSingleton<ICacheService, RedisCacheService>();
         }
         else
         {
-            // Null object pattern - no-op cache service if Redis is not configured
             services.AddSingleton<ICacheService, NullCacheService>();
         }
     }

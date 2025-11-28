@@ -5,7 +5,6 @@ namespace Location404.Data.Domain.Entities;
 /// </summary>
 public class PlayerStats
 {
-    // EF Core constructor
     private PlayerStats() { }
 
     public PlayerStats(Guid playerId)
@@ -28,7 +27,7 @@ public class PlayerStats
     public double TotalDistanceErrorKm { get; private set; } = 0;
     public double AverageDistanceErrorKm { get; private set; } = 0;
 
-    public int RankingPoints { get; private set; } = 1000; // ELO-style starting points
+    public int RankingPoints { get; private set; } = 1000;
 
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
     public DateTime? LastMatchAt { get; private set; }
@@ -41,21 +40,20 @@ public class PlayerStats
         var isPlayerA = match.PlayerAId == PlayerId;
         var playerPoints = isPlayerA ? match.PlayerATotalPoints : match.PlayerBTotalPoints;
 
-        // Update win/loss/draw
         if (match.WinnerId == PlayerId)
         {
             Wins++;
-            RankingPoints += 25; // Win bonus
+            RankingPoints += 25;
         }
         else if (match.LoserId == PlayerId)
         {
             Losses++;
-            RankingPoints = Math.Max(0, RankingPoints - 10); // Loss penalty
+            RankingPoints = Math.Max(0, RankingPoints - 10);
         }
-        else if (match.IsCompleted) // Draw
+        else if (match.IsCompleted) 
         {
             Draws++;
-            RankingPoints += 5; // Small draw bonus
+            RankingPoints += 5;
         }
 
         // Update round statistics
@@ -75,7 +73,6 @@ public class PlayerStats
                 HighestScore = roundPoints;
         }
 
-        // Recalculate averages
         if (TotalRoundsPlayed > 0)
         {
             AveragePointsPerRound = (double)TotalPoints / TotalRoundsPlayed;

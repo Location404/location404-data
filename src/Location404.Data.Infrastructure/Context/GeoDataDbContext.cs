@@ -21,7 +21,6 @@ public class GeoDataDbContext(DbContextOptions<GeoDataDbContext> options) : DbCo
     {
         base.OnModelCreating(modelBuilder);
 
-        // Location configuration
         modelBuilder.Entity<Location>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -38,7 +37,6 @@ public class GeoDataDbContext(DbContextOptions<GeoDataDbContext> options) : DbCo
                 coord.Property(c => c.Y).IsRequired().HasColumnName("Longitude");
             });
 
-            // Tags as JSON column
             entity.Property(e => e.Tags)
                 .HasColumnType("jsonb")
                 .HasDefaultValue(new List<string>());
@@ -48,7 +46,6 @@ public class GeoDataDbContext(DbContextOptions<GeoDataDbContext> options) : DbCo
             entity.HasIndex(e => e.IsActive);
         });
 
-        // GameMatch configuration
         modelBuilder.Entity<GameMatch>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -57,7 +54,6 @@ public class GeoDataDbContext(DbContextOptions<GeoDataDbContext> options) : DbCo
             entity.Property(e => e.IsCompleted).IsRequired();
             entity.Property(e => e.StartedAt).IsRequired();
 
-            // One-to-many relationship with GameRounds
             entity.HasMany(e => e.Rounds)
                 .WithOne()
                 .HasForeignKey(r => r.MatchId)
@@ -69,7 +65,6 @@ public class GeoDataDbContext(DbContextOptions<GeoDataDbContext> options) : DbCo
             entity.HasIndex(e => e.StartedAt);
         });
 
-        // GameRound configuration
         modelBuilder.Entity<GameRound>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -78,21 +73,18 @@ public class GeoDataDbContext(DbContextOptions<GeoDataDbContext> options) : DbCo
             entity.Property(e => e.LocationId).IsRequired();
             entity.Property(e => e.IsCompleted).IsRequired();
 
-            // Owned type for CorrectAnswer coordinate
             entity.OwnsOne(e => e.CorrectAnswer, coord =>
             {
                 coord.Property(c => c.X).IsRequired().HasColumnName("CorrectAnswerLatitude");
                 coord.Property(c => c.Y).IsRequired().HasColumnName("CorrectAnswerLongitude");
             });
 
-            // Owned type for PlayerA guess
             entity.OwnsOne(e => e.PlayerAGuess, coord =>
             {
                 coord.Property(c => c.X).HasColumnName("PlayerAGuessLatitude");
                 coord.Property(c => c.Y).HasColumnName("PlayerAGuessLongitude");
             });
 
-            // Owned type for PlayerB guess
             entity.OwnsOne(e => e.PlayerBGuess, coord =>
             {
                 coord.Property(c => c.X).HasColumnName("PlayerBGuessLatitude");
@@ -103,7 +95,6 @@ public class GeoDataDbContext(DbContextOptions<GeoDataDbContext> options) : DbCo
             entity.HasIndex(e => e.LocationId);
         });
 
-        // PlayerStats configuration
         modelBuilder.Entity<PlayerStats>(entity =>
         {
             entity.HasKey(e => e.PlayerId);

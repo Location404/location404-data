@@ -138,7 +138,6 @@ public class MatchConsumerService : BackgroundService
 
         consumer.ReceivedAsync += async (model, ea) =>
         {
-            // v7: MUST copy body data immediately (memory is library-owned)
             var body = ea.Body.ToArray();
             IServiceScope? scope = null;
 

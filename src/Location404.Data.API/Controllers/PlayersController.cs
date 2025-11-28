@@ -16,10 +16,9 @@ public class PlayersController(IPlayerStatsService playerStatsService) : Control
     {
         var stats = await _playerStatsService.GetPlayerStatsAsync(playerId);
 
-        if (stats == null)
-            return NotFound(new { message = $"Stats for player {playerId} not found" });
-
-        return Ok(stats);
+        return stats == null 
+            ? NotFound(new { message = $"Stats for player {playerId} not found" }) 
+            : Ok(stats);
     }
 
     [HttpGet("ranking")]
